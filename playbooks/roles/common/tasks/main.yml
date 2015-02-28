@@ -1,0 +1,13 @@
+- name: ensure services are running and enabled
+  sudo: yes
+  service: name={{ item }} state=started enabled=true
+  with_items: services
+  tags:
+     - services
+
+- name: ensure hosts file is up to date
+  sudo: yes
+  template: src=hosts.j2 dest=/etc/hosts owner=root group=root mode=0644 backup=yes
+  tags:
+     - hostfile
+     - configs

@@ -1,0 +1,8 @@
+- name: ensure /srv/ssl directory is present and configured
+  file: path=/srv/ssl type=directory owner=nginx group=nginx mode=0750
+  sudo: yes
+
+- name: generate self-signed openssl cert
+  command: openssl req -new -x509 -sha256 -days 365 -nodes -out /srv/ssl/nginx.pem -keyout /srv/ssl/nginx.key -newkey rsa:2048
+  sudo: yes
+  when: /srv/ssl/nginx.key not present

@@ -1,0 +1,25 @@
+- name: ensure services are at the lastest versions
+  sudo: yes
+  yum: pkg={{ item }} state=latest
+  with_items: services
+  tags:
+     - packages
+
+- name: ensure services are running and enabled
+  sudo: yes
+  service: name={{ item }} state=started enabled=true
+  with_items: services
+  tags:
+     - services
+
+- name: ensure firewalld is configured for http
+  sudo: yes
+  firewalld: permanent=yes service=http state=enabled zone=public
+  tags:
+     - firewalld
+
+- name: ensure firewalld is configured for tftp
+  sudo: yes
+  firewalld: permanent=yes service=tftp state=enabled zone=public
+  tags:
+     - firewalld

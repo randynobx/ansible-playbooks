@@ -1,0 +1,47 @@
+- name: ensure epel repo is present
+  yum: pkg=epel-release state=present
+  sudo: yes
+  tags:
+     - packages
+
+- name: ensure transmission-daemon is at the latest version
+  yum: pkg=transmission-daemon state=latest
+  sudo: yes
+  tags:
+     - packages
+
+- name: ensure transmission-daemon config file is correct
+  template:
+        src=settings.conf.j2
+        dest=/var/lib/transmission/.config/transmission/settings.json
+        backup=yes
+        owner=transmission group=transmission mode=0600
+  sudo: yes
+  notify:
+     - restart transmission-daemon
+  tags:
+     - config
+
+- name: ensure storage is mounted
+  mount: name="{{ mount_point }}" src="{{ mount_dev }}" fstype="{{ mount_dev_fstype }}" opts=rw state=present
+  sudo: yes
+  tags:
+     - mount
+
+- name: ensure firewalld is configured for transmission-daemon
+  sudo: yes
+  firewalld:
+        permanent=yes
+        service=transmission
+        state=enabled
+        zone=public
+  tags:
+     - firewall
+
+- name: ensure transmission-daemon is running and enabled
+  service: name=transmission-daemon state=started enabled=yes
+  sudo: yes
+  tags:
+     - service
+
+

@@ -1,0 +1,56 @@
+- name: ensure user {{ user }} is correctly setup
+  user: name={{ user }} shell={{ default_shell }} state=present groups={{ user_groups }} append=yes password=${password}
+  tags:
+     - user
+
+- name: ensure packages are at the latest versions
+  sudo: yes
+  pacman: name={{ item }} state=present update_cache=yes
+  with_items: packages
+  tags:
+     - packages
+     - pacman
+     - archlinux
+
+- name: ensure .bashrc file is up to date
+  template: src="bashrc" dest=/home/{{ user }}/.bashrc owner={{ user }}
+  tags:
+     - shell
+     - bash
+     - dotfiles
+
+- name: ensure .zshrc file is up to date
+  template: src="zshrc" dest=/home/{{ user }}/.zshrc owner={{ user }}
+  tags:
+     - shell
+     - zsh
+     - dotfiles
+
+- name: ensure sshd_config is correct
+  sudo: yes
+  template: src=sshd_config.j2 dest=/etc/ssh/sshd_config owner=root group=root mode=0644
+  notify:
+    - restart sshd
+  tags:
+     - ssh
+     - configs
+
+- name: ensure .ssh/authorized_keys set correctly
+  authorized_key: user={{ user }} key="{{ lookup('file', 'authorized_keys') }}" manage_dir=yes
+  tags:
+     - ssh
+     - keys
+
+- name: ensure /etc/sudoers is correct
+  sudo: yes
+  template: src=sudoers.j2 dest=/etc/sudoers owner=root group=root mode=0440
+  tags:
+     - sudoers
+     - configs
+
+- name: ensure iptables is configured for sshd 
+  sudo: yes
+  command: iptables -L
+  tags:
+     - ssh
+     - iptables

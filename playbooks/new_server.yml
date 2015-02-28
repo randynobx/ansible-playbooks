@@ -1,0 +1,19 @@
+- hosts: servers
+  #remote_user: {{ users }}
+  sudo: yes
+
+  vars_prompt:
+    hostname: "what is the hostname?"
+  
+  tasks:
+    - name: set hostname
+      hostname: name={{ hostname }}
+      sudo: yes
+
+    - name: update system
+      yum: name=* state=latest
+      sudo: yes
+
+  roles:
+    - common
+    - server

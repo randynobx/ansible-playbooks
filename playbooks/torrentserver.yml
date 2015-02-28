@@ -1,0 +1,5 @@
+- hosts: torrentservers
+  roles:
+    - server
+    - common
+    - { role: transmission, tags: ['transmission'] }

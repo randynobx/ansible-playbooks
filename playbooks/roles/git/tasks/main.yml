@@ -1,0 +1,5 @@
+- name: ensure git is installed and up-to-date
+  sudo: yes
+  yum: pkg=git state=latest
+  tags:
+     - packages

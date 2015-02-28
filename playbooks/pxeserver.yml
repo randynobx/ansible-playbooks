@@ -1,0 +1,5 @@
+- hosts: pxeservers
+  roles: 
+    - server
+    - common
+    - { role: pxe, tags: ['pxe'] }

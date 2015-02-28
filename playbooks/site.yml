@@ -1,0 +1,7 @@
+- include: webserver.yml
+- include: torrentserver.yml
+- include: pxeserver.yml
+- include: gitserver.yml
+- include: server.yml
+- include: kvmserver.yml
+- include: workstation.yml

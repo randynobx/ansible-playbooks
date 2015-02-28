@@ -1,0 +1,13 @@
+# Ignore hosts file and host_vars
+inventory/hosts
+inventory/host_vars/*
+inventory/group_vars/servers.yml
+inventory/group_vars/workstations.yml
+
+**/**/bashrc
+**/**/zshrc
+**/**/authorized_keys
+**/**/domain.conf.j2
+playbooks/roles/common/templates/hosts.j2
+playbooks/roles/transmission/vars/main.yml
+playbooks/roles/workstation/templates/sudoers.j2

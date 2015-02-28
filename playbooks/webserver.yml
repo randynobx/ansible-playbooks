@@ -1,0 +1,6 @@
+- hosts: webservers
+  roles:
+    - server 
+    - common
+    - { role: nginx, tags: ['web', 'nginx'] }
+    - { role: php-fpm, tags: ['web', 'php'] }

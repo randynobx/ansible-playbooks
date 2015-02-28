@@ -1,0 +1,4 @@
+- hosts: kvmhosts
+  roles:
+    - common
+    - { role: kvm, tags: ['kvm', 'libvirt'] }

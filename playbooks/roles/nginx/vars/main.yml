@@ -1,0 +1,9 @@
+nginx_user: nginx
+worker_processes: 4
+worker_connections: 1024
+keepalive_timeout: 65
+
+http_port: "80"
+https_port: "443"
+allowed_ips:
+        - 127.0.0.1

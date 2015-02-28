@@ -1,0 +1,77 @@
+- name: ensure epel repo is installed
+  yum: pkg=epel-release state=present
+  sudo: yes
+  tags:
+     - packages
+
+- name: ensure nginx is at the latest version
+  yum: pkg=nginx state=latest
+  sudo: yes
+  tags:
+     - packages
+
+- name: ensure selinux bool httpd_unified -> on
+  command: setsebool httpd_unified on
+  sudo: yes
+  tags:
+     - selinux
+
+- name: check the nginx config file
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf owner=root group=root mode=0644
+  sudo: yes
+  notify:
+     - restart nginx
+  tags:
+     - configs
+
+- name: check the domain config file
+  template: src=domain.conf.j2 dest=/etc/nginx/conf.d/{{ domain_name }}.conf owner=root group=root mode=0644
+  sudo: yes
+  notify:
+     - restart nginx
+  tags:
+     - configs
+
+- name: ensure /srv/www/{{ domain_name }}/logs is present with correct permissions
+  sudo: yes
+  file: path=/srv/www/{{ domain_name }}/logs state=directory owner=nginx group=nginx mode=0774 recurse=yes setype=httpd_sys_rw_content_t
+  tags:
+     - files
+     - selinux
+
+- name: ensure /srv/www/{{ domain_name }}/public_html is present with correct permissions
+  sudo: yes
+  file: path=/srv/www/{{ domain_name }}/public_html state=directory owner=nginx group=nginx mode=0774 recurse=yes setype=httpd_sys_content_t
+  tags:
+     - files
+     - selinux
+
+- name: ensure /srv/ssl is present with correct permissions
+  sudo: yes
+  file: path=/srv/ssl state=directory owner=nginx group=nginx mode=0755 setype=httpd_sys_content_t
+  tags:
+     - files
+     - ssl
+     - selinux
+
+- name: ensure nginx is running and enabled
+  service: name=nginx state=started enabled=yes
+  sudo: yes
+  tags:
+     - services
+
+- name: ensure firewalld is configured for http
+  sudo: yes
+  firewalld: permanent=yes service=http state=enabled zone=public
+  notify:
+     - reload firewalld
+  tags:
+     - firewall
+
+- name: ensure firewalld is configured for https
+  sudo: yes
+  firewalld: permanent=yes service=https state=enabled zone=public
+  notify:
+     - reload firewalld
+  tags:
+     - firewall

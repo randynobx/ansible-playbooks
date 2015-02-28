@@ -1,0 +1,30 @@
+- name: ensure kvm related packages are installed and up to date (yum)
+  sudo: yes
+  yum: pkg={{ item }} state=latest
+  with_items: qemu-kvm
+  when: ansible_pkg_mgr == 'yum'
+  tags:
+     - packages
+
+- name: ensure kvm related packages are installed and up to date (pacman)
+  sudo: yes
+  pacman: name={{ item }} state=present
+  with_items: [libvirt, qemu]
+  when: ansible_pkg_mgr == 'pacman'
+  tags:
+     - packages
+
+- name: ensure libvirtd.conf is correct
+  sudo: yes
+  template: src=libvirtd.conf.j2 dest=/etc/libvirt/libvirtd.conf
+  tags:
+     - config
+  notify:
+     - restart libvirtd
+
+- name: ensure services are running and enabled
+  sudo: yes
+  service: name={{ item }} state=started enabled=true
+  with_items: [libvirtd]
+  tags:
+     - services

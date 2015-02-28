@@ -1,0 +1,7 @@
+- name: ensure php-fpm is at the latest version
+  yum: pkg=php-fpm state=latest
+  sudo: yes
+
+- name: ensure php-fpm is running and enabled
+  service: name=php-fpm state=started enabled=yes
+  sudo: yes

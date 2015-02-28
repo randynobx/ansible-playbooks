@@ -1,0 +1,7 @@
+services:
+  - sshd
+  - rsyncd
+#  - firewalld
+packages:
+  - openssh
+  - rsync

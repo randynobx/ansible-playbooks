@@ -1,0 +1,62 @@
+- name: ensure selinux is enfocing
+  selinux: policy=targeted state=enforcing
+  sudo: yes
+  tags:
+     - selinux
+
+- name: ensure user {{ user }} is correctly setup
+  user: name={{ user }} shell={{ default_shell }} state=present groups={{ user_groups }} append=yes password={{ password }}
+  sudo: yes
+  tags:
+     - user
+ 
+- name: ensure packages are at the latest versions
+  sudo: yes
+  yum: pkg={{ item }} state=latest
+  with_items: packages
+  tags:
+     - packages
+     - yum
+
+- name: ensure .bashrc file is up to date
+  template: src="bashrc" dest=/home/{{ user }}/.bashrc owner={{ user }}
+  tags:
+     - shell
+     - bash
+     - dotfiles
+
+- name: ensure sshd_config is correct
+  sudo: yes
+  template: src=sshd_config dest=/etc/ssh/sshd_config owner=root group=root mode=0644
+  notify:
+    - restart sshd
+  tags:
+     - ssh
+     - configs
+
+- name: ensure .ssh/authorized_keys set correctly
+  authorized_key: user={{ user }} key="{{ lookup('file', 'authorized_keys') }}" manage_dir=yes
+  tags:
+     - ssh
+     - keys
+
+- name: ensure /etc/sudoers is correct
+  sudo: yes
+  template: src=sudoers.j2 dest=/etc/sudoers owner=root group=root mode=0440
+  tags:
+     - sudoers
+     - configs
+
+- name: ensure firewalld is configured for sshd 
+  sudo: yes
+  firewalld:
+        permanent=yes
+        service=ssh
+        state=enabled
+        zone=public
+  notify:
+     - reload firewalld
+  when: ansible_distribution == 'CentOS'
+  tags:
+     - firewall
+     - ssh
